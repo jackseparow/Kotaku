@@ -1,50 +1,46 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// Load Gambar Peta Latar Belakang
+// 1. Muat Gambar Latar Belakang Peta (background.jpg)
 const mapImage = new Image();
-mapImage.src = 'map.jpg';
+mapImage.src = 'background.jpg';
+
+// 2. Muat Gambar Maskot Si Yo (siyo.png) sebagai Ikon Karakter
+const siyoImage = new Image();
+siyoImage.src = 'siyo.png';
+
+let imagesLoaded = 0;
+function checkImagesLoaded() {
+    imagesLoaded++;
+    if (imagesLoaded === 2) {
+        drawMap();
+    }
+}
+
+mapImage.onload = checkImagesLoaded;
+siyoImage.onload = checkImagesLoaded;
 
 // Posisi Awal Karakter (Rumahku - Kanan Bawah)
-// Angle: 270 = Menghadap Ke Atas / Utara
+// Angle: 270 = Menghadap ke Atas / Utara
 const initialPos = { x: 790, y: 390, angle: 270 };
 let player = { ...initialPos };
 
 let commandQueue = [];
 let isExecuting = false;
 
-mapImage.onload = () => {
-    drawMap();
-};
-
 function drawMap() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 1. Gambar Gambar Peta Kota
+    // Gambar Peta Background
     ctx.drawImage(mapImage, 0, 0, canvas.width, canvas.height);
 
-    // 2. Gambar Karakter (Avatar Panah Penunjuk Arah)
+    // Gambar Karakter (Si Yo) di atas Canvas
     ctx.save();
     ctx.translate(player.x, player.y);
     ctx.rotate((player.angle * Math.PI) / 180);
 
-    // Lingkaran Luar Karakter
-    ctx.beginPath();
-    ctx.arc(0, 0, 16, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-    ctx.fill();
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = "#2563eb";
-    ctx.stroke();
-
-    // Panah Merah Penunjuk Orientasi Sudut
-    ctx.fillStyle = "#dc2626";
-    ctx.beginPath();
-    ctx.moveTo(0, -12);
-    ctx.lineTo(9, 9);
-    ctx.lineTo(-9, 9);
-    ctx.closePath();
-    ctx.fill();
+    const size = 38; // Ukuran sprite karakter Si Yo di peta
+    ctx.drawImage(siyoImage, -size / 2, -size / 2, size, size);
 
     ctx.restore();
 }
@@ -60,7 +56,7 @@ function renderQueueUI() {
     queueBox.innerHTML = '';
 
     if (commandQueue.length === 0) {
-        queueBox.innerHTML = '<span class="placeholder-text">Pilih kartu instruksi di bawah...</span>';
+        queueBox.innerHTML = '<span class="placeholder-text">Pilih kartu instruksi di bawah untuk merencanakan perjalananmu...</span>';
         return;
     }
 
@@ -100,8 +96,8 @@ async function jalankanAlur() {
 
 function eksekusiLangkah(cmd) {
     return new Promise((resolve) => {
-        const duration = 600; // Jeda animasi 0.6 detik
-        const stepDistance = 50; // Jarak per langkah (piksel)
+        const duration = 600; // Durasi animasi per langkah (milidetik)
+        const stepDistance = 50; // Jarak perpindahan piksel
 
         const startX = player.x;
         const startY = player.y;
@@ -113,7 +109,7 @@ function eksekusiLangkah(cmd) {
 
         const rad = (player.angle * Math.PI) / 180;
 
-        // Hitung Pergerakan atau Rotasi berdasarkan perintah
+        // Perhitungan arah berdasarkan sudut orientasi karakter
         if (cmd === 'MAJU') {
             targetX = startX + Math.cos(rad) * stepDistance;
             targetY = startY + Math.sin(rad) * stepDistance;
@@ -125,12 +121,12 @@ function eksekusiLangkah(cmd) {
         } else if (cmd === 'BELOK_KIRI_90') {
             targetAngle = startAngle - 90;
         } else if (cmd === 'BELOK_KANAN_45') {
-            targetAngle = startAngle + 45;
+            targetAngle = startAngle + 45; // Mendukung belok diagonal ke Hutan Kota / Bioskop
         } else if (cmd === 'BELOK_KIRI_45') {
             targetAngle = startAngle - 45;
         }
 
-        // Batasi karakter agar tidak keluar dari tepi Canvas
+        // Pembatasan area agar karakter tidak keluar canvas
         targetX = Math.min(Math.max(targetX, 20), canvas.width - 20);
         targetY = Math.min(Math.max(targetY, 20), canvas.height - 20);
 
@@ -151,7 +147,7 @@ function eksekusiLangkah(cmd) {
             } else {
                 player.x = targetX;
                 player.y = targetY;
-                player.angle = targetAngle;
+                player.angle = targetAngle % 360;
                 resolve();
             }
         }
