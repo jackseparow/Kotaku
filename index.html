@@ -3,18 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Petualangan Kotamu</title>
+    <title>Kotaku</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <header>
-        <h1>Petualangan Kotamu</h1>
-        <p>Susun alur petualanganmu, lalu klik <strong>JALANKAN</strong>!</p>
+    <!-- Header / Banner Utama -->
+    <header class="game-header">
+        <div class="header-left">
+            <img src="logo_bbgtk.png" alt="Logo BBGTK" class="logo-bbgtk">
+            <h1>Kotaku</h1>
+        </div>
+        <div class="header-right">
+            <img src="siyo.png" alt="Maskot Si Yo" class="logo-siyo" title="Si Yo - Penjelajah Kota">
+        </div>
     </header>
 
     <main class="game-container">
-        <!-- Area Visual Canvas -->
+        <!-- Area Visual Canvas Peta -->
         <div class="map-wrapper">
             <canvas id="gameCanvas" width="900" height="506"></canvas>
         </div>
@@ -24,10 +30,10 @@
             <h3>Papan Alur Perintah</h3>
             
             <div id="commandQueue" class="command-queue-box">
-                <span class="placeholder-text">Pilih kartu instruksi di bawah...</span>
+                <span class="placeholder-text">Pilih kartu instruksi di bawah untuk merencanakan perjalananmu...</span>
             </div>
 
-            <!-- Kartu Perintah -->
+            <!-- Kartu Perintah (Maju, Mundur, Rotasi 90° & 45°) -->
             <div class="deck-buttons">
                 <button class="btn-card" onclick="tambahPerintah('MAJU')">⬆️ Maju</button>
                 <button class="btn-card" onclick="tambahPerintah('MUNDUR')">⬇️ Mundur</button>
@@ -37,10 +43,10 @@
                 <button class="btn-card" onclick="tambahPerintah('BELOK_KIRI_45')">↖️ Kiri 45°</button>
             </div>
 
-            <!-- Tombol Eksekusi -->
+            <!-- Tombol Eksekusi & Reset -->
             <div class="action-buttons">
                 <button id="btnStart" class="btn-action btn-start" onclick="jalankanAlur()">▶️ JALANKAN</button>
-                <button class="btn-action btn-reset" onclick="resetRute()">🔄 Reset</button>
+                <button class="btn-action btn-reset" onclick="resetRute()">🔄 Reset Rute</button>
             </div>
         </div>
     </main>
